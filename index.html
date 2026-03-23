@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life B | Dashboard SDR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-purple: #5B3FA6;
+            --primary-pink: #E91E8C;
+            --white: #FFFFFF;
+            --bg-light: #F8F9FB;
+            --bg-lighter: #FAFBFC;
+            --text-primary: #1A1A2E;
+            --text-secondary: #666677;
+            --text-light: #999999;
+            --border: #E8E8F0;
+            --success: #22C55E;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(91, 63, 166, 0.1);
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 16px;
+            box-shadow: var(--shadow-xs);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 2000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .logo-life { color: var(--primary-purple); }
+        .logo-b { color: var(--primary-pink); }
+
+        .header-info h1 {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .header-info p {
+            font-size: 11px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 3px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .time-badge {
+            background: var(--bg-light);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .container {
+            max-width: 2000px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 24px;
+            margin-bottom: 16px;
+            padding-left: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== FILTRO ===== */
+        .filter-section {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .dropdown-wrapper {
+            position: relative;
+            max-width: 250px;
+        }
+
+        .dropdown-btn {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .dropdown-btn:hover {
+            border-color: var(--primary-purple);
+            background: #F3F1F8;
+        }
+
+        .dropdown-btn:focus {
+            outline: 2px solid var(--primary-purple);
+            outline-offset: 2px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            min-width: 250px;
+            max-height: 350px;
+            overflow-y: auto;
+            border-radius: 6px;
+            top: 100%;
+            left: 0;
+            margin-top: 6px;
+            z-index: 1000;
+            box-shadow: 0 10px 24px rgba(91, 63, 166, 0.12);
+            border: 1px solid var(--border);
+        }
+
+        .dropdown-content.show {
+            display: block;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-option {
+            padding: 12px 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-option:hover {
+            background: var(--bg-light);
+            color: var(--primary-purple);
+        }
+
+        .dropdown-option.active {
+            background: linear-gradient(135deg, rgba(91, 63, 166, 0.1), rgba(233, 30, 140, 0.1));
+            color: var(--primary-purple);
+            font-weight: 700;
+        }
+
+        .custom-dates {
+            display: none;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .custom-dates.show {
+            display: flex;
+        }
+
+        .date-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .date-input-group label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .date-input-group input {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 12px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .date-input-group input:focus {
+            outline: 2px solid var(--primary-purple);
+            outline-offset: 2px;
+            border-color: var(--primary-purple);
+        }
+
+        .date-btn {
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .date-btn:hover {
+            background: #6B4BA6;
+        }
+
+        /* ===== KPIs ===== */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--primary-purple);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 8px;
+        }
+
+        .kpi-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            flex: 1;
+        }
+
+        .info-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-purple), var(--primary-pink));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: help;
+            border: none;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .info-icon:hover {
+            transform: scale(1.08);
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: auto;
+            top: 45px;
+            right: -5px;
+            background: var(--text-primary);
+            color: white;
+            padding: 12px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: normal;
+            max-width: 220px;
+            z-index: 500;
+            box-shadow: 0 10px 24px rgba(91, 63, 166, 0.12);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease-out;
+            pointer-events: none;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: auto;
+            top: -6px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 6px solid var(--text-primary);
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary-purple);
+            margin-bottom: 6px;
+            line-height: 1;
+        }
+
+        .kpi-card.pink .kpi-value {
+            color: var(--primary-pink);
+        }
+
+        .kpi-subtitle {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* ===== TABELAS ===== */
+        .table-section {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th {
+            background: var(--bg-lighter);
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background: var(--bg-lighter);
+        }
+
+        .table-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+            font-size: 13px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-agendado {
+            background: rgba(34, 197, 94, 0.12);
+            color: #15803d;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-contato-realizado {
+            background: rgba(34, 197, 94, 0.12);
+            color: #15803d;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-nao-interessado {
+            background: rgba(245, 158, 11, 0.12);
+            color: #92400e;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-nao-atendeu {
+            background: rgba(239, 68, 68, 0.12);
+            color: #7f1d1d;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-whatsapp-sem-resposta {
+            background: rgba(239, 68, 68, 0.12);
+            color: #7f1d1d;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-numero-invalido {
+            background: rgba(239, 68, 68, 0.12);
+            color: #7f1d1d;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-nao-encontrado {
+            background: rgba(239, 68, 68, 0.12);
+            color: #7f1d1d;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-default {
+            background: rgba(156, 163, 175, 0.12);
+            color: #374151;
+            border: 1px solid rgba(156, 163, 175, 0.3);
+        }
+
+        .table-pagination {
+            margin-top: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .view-more-btn {
+            background: linear-gradient(135deg, var(--primary-purple), var(--primary-pink));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+            font-family: inherit;
+        }
+
+        .view-more-btn:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        /* ===== RESPONSIVO ===== */
+        @media (max-width: 768px) {
+            .tooltip {
+                position: fixed;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%);
+                right: auto !important;
+                bottom: auto !important;
+                max-width: 85vw;
+                z-index: 9999;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 12px;
+            }
+
+            .logo-text {
+                font-size: 16px;
+            }
+
+            .container {
+                padding: 12px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-value {
+                font-size: 28px;
+            }
+
+            table {
+                font-size: 10px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-container">
+            <div class="header-left">
+                <div class="logo-text"><span class="logo-life">Life</span><span class="logo-b">B</span></div>
+                <div class="header-info">
+                    <h1>Dashboard SDR</h1>
+                    <p>Acompanhamento de Agendamentos</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="time-badge" id="currentTime">--:--:--</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- FILTRO -->
+        <div class="filter-section">
+            <label class="filter-label" for="periodDropdown">📅 Selecione o Período</label>
+            <div class="dropdown-wrapper">
+                <button class="dropdown-btn" id="periodDropdown" onclick="toggleDropdown()" aria-label="Selecionar período" aria-expanded="false">
+                    <span id="selectedPeriod">Hoje</span>
+                    <span aria-hidden="true">▼</span>
+                </button>
+                <div class="dropdown-content" id="dropdownContent" role="listbox">
+                    <div class="dropdown-option" role="option" onclick="selectPeriod(event, 'hoje', 'Hoje')">Hoje</div>
+                    <div class="dropdown-option" role="option" onclick="selectPeriod(event, 'ontem', 'Ontem')">Ontem</div>
+                    <div class="dropdown-option" role="option" onclick="selectPeriod(event, 'essasemana', 'Essa Semana')">Essa Semana</div>
+                    <div class="dropdown-option" role="option" onclick="selectPeriod(event, 'semanapassada', 'Semana Passada')">Semana Passada</div>
+                    <div class="dropdown-option" role="option" onclick="selectPeriod(event, '7dias', 'Últimos 7 Dias')">Últimos 7 Dias</div>
+                    <div class="dropdown-option" role="option" onclick="selectPeriod(event, '15dias', 'Últimos 15 Dias')">Últimos 15 Dias</div>
+                    <div class="dropdown-option" role="option" onclick="selectPeriod(event, '30dias', 'Últimos 30 Dias')">Últimos 30 Dias</div>
+                    <div class="dropdown-option" role="option" onclick="selectPeriod(event, 'mes', 'Esse Mês')">Esse Mês</div>
+                    <div class="dropdown-option" role="option" onclick="selectPeriod(event, 'mespassado', 'Mês Passado')">Mês Passado</div>
+                    <div class="dropdown-option" role="option" onclick="selectPeriod(event, 'personalizado', 'Personalizado')">Personalizado</div>
+                    <div class="dropdown-option" role="option" onclick="selectPeriod(event, 'tudo', 'Todos os Dados')">Todos os Dados</div>
+                </div>
+            </div>
+            <div class="custom-dates" id="customDates">
+                <div class="date-input-group">
+                    <label for="dataInicio">De:</label>
+                    <input type="date" id="dataInicio" aria-label="Data de início">
+                </div>
+                <div class="date-input-group">
+                    <label for="dataFim">Até:</label>
+                    <input type="date" id="dataFim" aria-label="Data de término">
+                </div>
+                <button class="date-btn" onclick="aplicarPersonalizado()" aria-label="Aplicar filtro de datas">Aplicar</button>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="section-title">📈 Indicadores Principais</div>
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-label">📞 Leads na Base</div>
+                    <button class="info-icon" onclick="mostrarTooltip(event)" aria-label="Informação">?
+                        <div class="tooltip">Total de contatos registrados no período</div>
+                    </button>
+                </div>
+                <div class="kpi-value" id="totalContatos">0</div>
+                <div class="kpi-subtitle" id="totalContatosSub">contatos</div>
+            </div>
+
+            <div class="kpi-card pink">
+                <div class="kpi-header">
+                    <div class="kpi-label">📈 Contato Efetivo %</div>
+                    <button class="info-icon" onclick="mostrarTooltip(event)" aria-label="Informação">?
+                        <div class="tooltip">% com interação real: Contato realizado + Não interessado + Agendado</div>
+                    </button>
+                </div>
+                <div class="kpi-value" id="taxaEfetiva">0%</div>
+                <div class="kpi-subtitle" id="taxaEfetivaSub">efetivos</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-label">✅ Taxa Agendamento %</div>
+                    <button class="info-icon" onclick="mostrarTooltip(event)" aria-label="Informação">?
+                        <div class="tooltip">% de agendamentos entre contatos efetivos</div>
+                    </button>
+                </div>
+                <div class="kpi-value" id="taxaAgendamento">0%</div>
+                <div class="kpi-subtitle" id="taxaAgendamentoSub">agendados</div>
+            </div>
+
+            <div class="kpi-card pink">
+                <div class="kpi-header">
+                    <div class="kpi-label">⏱️ Tempo Médio</div>
+                    <button class="info-icon" onclick="mostrarTooltip(event)" aria-label="Informação">?
+                        <div class="tooltip">Tempo médio de contato (apenas durações registradas)</div>
+                    </button>
+                </div>
+                <div class="kpi-value" id="tempoMedio">0m</div>
+                <div class="kpi-subtitle">minutos</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-label">🔥 Agendados</div>
+                    <button class="info-icon" onclick="mostrarTooltip(event)" aria-label="Informação">?
+                        <div class="tooltip">Total de contatos com status Agendado</div>
+                    </button>
+                </div>
+                <div class="kpi-value" id="agendados">0</div>
+                <div class="kpi-subtitle">prontos para representante</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-label">📋 Leads Trabalhados</div>
+                    <button class="info-icon" onclick="mostrarTooltip(event)" aria-label="Informação">?
+                        <div class="tooltip">Registros com status preenchido e válido</div>
+                    </button>
+                </div>
+                <div class="kpi-value" id="leadsTrabalhados">0</div>
+                <div class="kpi-subtitle" id="leadsTrabalhadosSub">com status</div>
+            </div>
+        </div>
+
+        <!-- TABELAS -->
+        <div class="section-title">📊 Análises Detalhadas</div>
+
+        <div class="table-section">
+            <div class="table-header">
+                <div class="table-title">📅 Agendamentos</div>
+            </div>
+            <table role="table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Cidade</th>
+                        <th>Bairro</th>
+                        <th>Data</th>
+                        <th>Hora</th>
+                        <th>Representante</th>
+                    </tr>
+                </thead>
+                <tbody id="agendamentosBody">
+                    <tr><td colspan="7" class="table-empty">Nenhum agendamento encontrado</td></tr>
+                </tbody>
+            </table>
+            <div class="table-pagination" id="agendamentosPagination"></div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header">
+                <div class="table-title">📋 Contatos do Período (Mais Recentes)</div>
+            </div>
+            <table role="table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Cidade</th>
+                        <th>Bairro</th>
+                        <th>Data</th>
+                        <th>Hora</th>
+                        <th>Status</th>
+                        <th>Representante</th>
+                    </tr>
+                </thead>
+                <tbody id="contatosBody">
+                    <tr><td colspan="8" class="table-empty">Nenhum contato encontrado</td></tr>
+                </tbody>
+            </table>
+            <div class="table-pagination" id="contatosPagination"></div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header">
+                <div class="table-title">🏪 Performance por Tipo</div>
+            </div>
+            <table role="table">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Total</th>
+                        <th>Agendados</th>
+                        <th>Taxa Efetiva %</th>
+                    </tr>
+                </thead>
+                <tbody id="tipoBody">
+                    <tr><td colspan="4" class="table-empty">Nenhum dado encontrado</td></tr>
+                </tbody>
+            </table>
+            <div class="table-pagination" id="tipoPagination"></div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header">
+                <div class="table-title">📍 Performance por Bairro</div>
+            </div>
+            <table role="table">
+                <thead>
+                    <tr>
+                        <th>Bairro</th>
+                        <th>Total</th>
+                        <th>Agendados</th>
+                        <th>Taxa Efetiva %</th>
+                    </tr>
+                </thead>
+                <tbody id="bairroBody">
+                    <tr><td colspan="4" class="table-empty">Nenhum dado encontrado</td></tr>
+                </tbody>
+            </table>
+            <div class="table-pagination" id="bairroPagination"></div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header">
+                <div class="table-title">👤 Agendamentos por Representante</div>
+            </div>
+            <table role="table">
+                <thead>
+                    <tr>
+                        <th>Representante</th>
+                        <th>Agendamentos</th>
+                    </tr>
+                </thead>
+                <tbody id="representanteBody">
+                    <tr><td colspan="2" class="table-empty">Nenhum dado encontrado</td></tr>
+                </tbody>
+            </table>
+            <div class="table-pagination" id="repPagination"></div>
+        </div>
+    </div>
+
+    <script>
+        // ===== DADOS =====
+        // INSTRUÇÕES: Substitua dadosExemplo por seus dados reais
+        // Formato: [{ nome, tipo, cidade, bairro, dataContato (YYYY-MM-DD), horaContato (HH:MM), duracao (número), status, representante }, ...]
+        const dadosExemplo = [
+            {
+                        "nome": "Farmácia Central Goiá",
+                        "tipo": "Farmácia",
+                        "cidade": "Goiânia",
+                        "bairro": "Goiá",
+                        "dataContato": "18/03/2026",
+                        "horaContato": "16:09",
+                        "duracao": 10,
+                        "status": "Contato realizado",
+                        "representante": "Bruno Costa"
+            },
+            {
+                        "nome": "Drogaria do Povo",
+                        "tipo": "Drogaria",
+                        "cidade": "Goiânia",
+                        "bairro": "Goiá",
+                        "dataContato": "17/03/2026",
+                        "horaContato": "17:06",
+                        "duracao": 11,
+                        "status": "Não interessado",
+                        "representante": "Diego Santos"
+            },
+            {
+                        "nome": "Supermercado Goiá Center",
+                        "tipo": "Supermercado",
+                        "cidade": "Goiânia",
+                        "bairro": "Goiá",
+                        "dataContato": "23/03/2026",
+                        "horaContato": "10:57",
+                        "duracao": 9,
+                        "status": "Agendado",
+                        "representante": "Carla Oliveira"
+            },
+            {
+                        "nome": "Farmácia do Centro",
+                        "tipo": "Farmácia",
+                        "cidade": "Goiânia",
+                        "bairro": "Centro",
+                        "dataContato": "19/03/2026",
+                        "horaContato": "13:37",
+                        "duracao": 15,
+                        "status": "Contato realizado",
+                        "representante": "Diego Santos"
+            },
+            {
+                        "nome": "Drogaria Popular Centro",
+                        "tipo": "Drogaria",
+                        "cidade": "Goiânia",
+                        "bairro": "Centro",
+                        "dataContato": "23/03/2026",
+                        "horaContato": "9:58",
+                        "duracao": 13,
+                        "status": "Contato realizado",
+                        "representante": "Diego Santos"
+            },
+            {
+                        "nome": "Supermercado Cidade Nova",
+                        "tipo": "Supermercado",
+                        "cidade": "Goiânia",
+                        "bairro": "Centro",
+                        "dataContato": "",
+                        "horaContato": "",
+                        "duracao": 0,
+                        "status": "Número inválido",
+                        "representante": "Ana Silva"
+            },
+            {
+                        "nome": "Farmácia Bom Saúde",
+                        "tipo": "Farmácia",
+                        "cidade": "Goiânia",
+                        "bairro": "Bom Jardim",
+                        "dataContato": "18/03/2026",
+                        "horaContato": "15:38",
+                        "duracao": 12,
+                        "status": "Agendado",
+                        "representante": "Carla Oliveira"
+            },
+            {
+                        "nome": "Drogaria Jardim",
+                        "tipo": "Drogaria",
+                        "cidade": "Goiânia",
+                        "bairro": "Bom Jardim",
+                        "dataContato": "23/03/2026",
+                        "horaContato": "12:25",
+                        "duracao": 15,
+                        "status": "Contato realizado",
+                        "representante": "Bruno Costa"
+            },
+            {
+                        "nome": "Supermercado Bom Jardim",
+                        "tipo": "Supermercado",
+                        "cidade": "Goiânia",
+                        "bairro": "Bom Jardim",
+                        "dataContato": "19/03/2026",
+                        "horaContato": "9:10",
+                        "duracao": 9,
+                        "status": "Agendado",
+                        "representante": "Diego Santos"
+            },
+            {
+                        "nome": "Farmácia Sul",
+                        "tipo": "Farmácia",
+                        "cidade": "Goiânia",
+                        "bairro": "Setor Sul",
+                        "dataContato": "21/03/2026",
+                        "horaContato": "15:33",
+                        "duracao": 15,
+                        "status": "Agendado",
+                        "representante": "Diego Santos"
+            },
+            {
+                        "nome": "Drogaria Setor Sul",
+                        "tipo": "Drogaria",
+                        "cidade": "Goiânia",
+                        "bairro": "Setor Sul",
+                        "dataContato": "20/03/2026",
+                        "horaContato": "16:46",
+                        "duracao": 8,
+                        "status": "Agendado",
+                        "representante": "Ana Silva"
+            },
+            {
+                        "nome": "Supermercado Sul Center",
+                        "tipo": "Supermercado",
+                        "cidade": "Goiânia",
+                        "bairro": "Setor Sul",
+                        "dataContato": "22/03/2026",
+                        "horaContato": "15:15",
+                        "duracao": 14,
+                        "status": "Agendado",
+                        "representante": "Diego Santos"
+            },
+            {
+                        "nome": "Farmácia Bueno",
+                        "tipo": "Farmácia",
+                        "cidade": "Goiânia",
+                        "bairro": "Setor Bueno",
+                        "dataContato": "22/03/2026",
+                        "horaContato": "11:44",
+                        "duracao": 9,
+                        "status": "Agendado",
+                        "representante": "Carla Oliveira"
+            },
+            {
+                        "nome": "Drogaria Bueno Plus",
+                        "tipo": "Drogaria",
+                        "cidade": "Goiânia",
+                        "bairro": "Setor Bueno",
+                        "dataContato": "20/03/2026",
+                        "horaContato": "11:40",
+                        "duracao": 12,
+                        "status": "Não interessado",
+                        "representante": "Carla Oliveira"
+            },
+            {
+                        "nome": "Supermercado Bueno",
+                        "tipo": "Supermercado",
+                        "cidade": "Goiânia",
+                        "bairro": "Setor Bueno",
+                        "dataContato": "17/03/2026",
+                        "horaContato": "12:55",
+                        "duracao": 7,
+                        "status": "Agendado",
+                        "representante": "Diego Santos"
+            },
+            {
+                        "nome": "Farmácia Noroeste",
+                        "tipo": "Farmácia",
+                        "cidade": "Goiânia",
+                        "bairro": "Noroeste",
+                        "dataContato": "18/03/2026",
+                        "horaContato": "11:05",
+                        "duracao": 0,
+                        "status": "WhatsApp sem resposta",
+                        "representante": "Carla Oliveira"
+            },
+            {
+                        "nome": "Drogaria Noroeste",
+                        "tipo": "Drogaria",
+                        "cidade": "Goiânia",
+                        "bairro": "Noroeste",
+                        "dataContato": "19/03/2026",
+                        "horaContato": "13:11",
+                        "duracao": 11,
+                        "status": "Agendado",
+                        "representante": "Carla Oliveira"
+            },
+            {
+                        "nome": "Supermercado Noroeste",
+                        "tipo": "Supermercado",
+                        "cidade": "Goiânia",
+                        "bairro": "Noroeste",
+                        "dataContato": "",
+                        "horaContato": "",
+                        "duracao": 0,
+                        "status": "Não atendeu",
+                        "representante": "Diego Santos"
+            },
+            {
+                        "nome": "Farmácia Campinas",
+                        "tipo": "Farmácia",
+                        "cidade": "Goiânia",
+                        "bairro": "Campinas",
+                        "dataContato": "21/03/2026",
+                        "horaContato": "11:07",
+                        "duracao": 7,
+                        "status": "Não interessado",
+                        "representante": "Ana Silva"
+            },
+            {
+                        "nome": "Drogaria Campinas",
+                        "tipo": "Drogaria",
+                        "cidade": "Goiânia",
+                        "bairro": "Campinas",
+                        "dataContato": "17/03/2026",
+                        "horaContato": "15:36",
+                        "duracao": 13,
+                        "status": "Agendado",
+                        "representante": "Diego Santos"
+            },
+            {
+                        "nome": "Supermercado Campinas",
+                        "tipo": "Supermercado",
+                        "cidade": "Goiânia",
+                        "bairro": "Campinas",
+                        "dataContato": "21/03/2026",
+                        "horaContato": "17:52",
+                        "duracao": 13,
+                        "status": "Agendado",
+                        "representante": "Bruno Costa"
+            },
+            {
+                        "nome": "Farmácia Jardim Goiás",
+                        "tipo": "Farmácia",
+                        "cidade": "Goiânia",
+                        "bairro": "Jardim Goiás",
+                        "dataContato": "17/03/2026",
+                        "horaContato": "17:39",
+                        "duracao": 15,
+                        "status": "Agendado",
+                        "representante": "Carla Oliveira"
+            },
+            {
+                        "nome": "Drogaria Jardim Goiás",
+                        "tipo": "Drogaria",
+                        "cidade": "Goiânia",
+                        "bairro": "Jardim Goiás",
+                        "dataContato": "22/03/2026",
+                        "horaContato": "17:29",
+                        "duracao": 8,
+                        "status": "Agendado",
+                        "representante": "Diego Santos"
+            },
+            {
+                        "nome": "Supermercado Jardim Goiás",
+                        "tipo": "Supermercado",
+                        "cidade": "Goiânia",
+                        "bairro": "Jardim Goiás",
+                        "dataContato": "23/03/2026",
+                        "horaContato": "11:11",
+                        "duracao": 13,
+                        "status": "Não interessado",
+                        "representante": "Ana Silva"
+            },
+            {
+                        "nome": "Farmácia Vila Nova",
+                        "tipo": "Farmácia",
+                        "cidade": "Goiânia",
+                        "bairro": "Vila Nova",
+                        "dataContato": "18/03/2026",
+                        "horaContato": "13:14",
+                        "duracao": 11,
+                        "status": "Agendado",
+                        "representante": "Carla Oliveira"
+            },
+            {
+                        "nome": "Drogaria Vila Nova",
+                        "tipo": "Drogaria",
+                        "cidade": "Goiânia",
+                        "bairro": "Vila Nova",
+                        "dataContato": "",
+                        "horaContato": "",
+                        "duracao": 0,
+                        "status": "",
+                        "representante": ""
+            },
+            {
+                        "nome": "Supermercado Vila Nova",
+                        "tipo": "Supermercado",
+                        "cidade": "Goiânia",
+                        "bairro": "Vila Nova",
+                        "dataContato": "",
+                        "horaContato": "",
+                        "duracao": 0,
+                        "status": "",
+                        "representante": ""
+            },
+            {
+                        "nome": "Farmácia City",
+                        "tipo": "Farmácia",
+                        "cidade": "Goiânia",
+                        "bairro": "Cidade Administrativa",
+                        "dataContato": "",
+                        "horaContato": "",
+                        "duracao": 0,
+                        "status": "",
+                        "representante": ""
+            },
+            {
+                        "nome": "Drogaria City Plus",
+                        "tipo": "Drogaria",
+                        "cidade": "Goiânia",
+                        "bairro": "Cidade Administrativa",
+                        "dataContato": "",
+                        "horaContato": "",
+                        "duracao": 0,
+                        "status": "",
+                        "representante": ""
+            },
+            {
+                        "nome": "Supermercado City Center",
+                        "tipo": "Supermercado",
+                        "cidade": "Goiânia",
+                        "bairro": "Cidade Administrativa",
+                        "dataContato": "",
+                        "horaContato": "",
+                        "duracao": 0,
+                        "status": "",
+                        "representante": ""
+            }
+];
+        const metricas = {
+            "leadsNaBase": 30,
+            "leadsTrabalhados": 25,
+            "efetivoPct": 88.0,
+            "agendados": 14,
+            "taxaAgendamento": 63.6,
+            "tempoMedio": 11.4
+};
+        let dadosAtuais = [...dadosExemplo];
+        const paginacaoConfig = { maxLinhasExibidas: 5 };
+        let paginacaoEstado = { contatos: false, tipo: false, bairro: false, representante: false, agendamentos: false };
+        let periodoAtual = 'hoje';
+
+        // ===== FUNÇÕES AUXILIARES =====
+
+        // Parser de datas: aceita YYYY-MM-DD ou DD/MM/YYYY
+        function parseData(valor) {
+            if (!valor) return null;
+            
+            if (valor instanceof Date) {
+                return valor;
+            }
+            
+            let d;
+            if (typeof valor === 'string') {
+                // Formato DD/MM/YYYY (padrão esperado)
+                if (valor.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                    const parts = valor.split('/');
+                    d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                }
+                // Formato YYYY-MM-DD (ISO sem Z para evitar timezone)
+                else if (valor.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    const parts = valor.split('-');
+                    d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                }
+                else {
+                    d = new Date(valor);
+                }
+            } else {
+                d = new Date(valor);
+            }
+            
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        // Formatar data para exibição DD/MM/YYYY
+        function formatarData(data) {
+            if (!data) return '-';
+            const d = parseData(data);
+            if (!d) return '-';
+            const dia = String(d.getDate()).padStart(2, '0');
+            const mes = String(d.getMonth() + 1).padStart(2, '0');
+            const ano = d.getFullYear();
+            return `${dia}/${mes}/${ano}`;
+        }
+
+        // Badge de status
+        function getBadgeClass(status) {
+            if (!status) return 'badge-default';
+            const st = status.toLowerCase();
+            if (st === 'agendado') return 'badge-agendado';
+            if (st === 'contato realizado') return 'badge-contato-realizado';
+            if (st === 'não interessado') return 'badge-nao-interessado';
+            if (st === 'não atendeu') return 'badge-nao-atendeu';
+            if (st === 'whatsapp sem resposta') return 'badge-whatsapp-sem-resposta';
+            if (st === 'número inválido') return 'badge-numero-invalido';
+            if (st === 'não encontrado') return 'badge-nao-encontrado';
+            return 'badge-default';
+        }
+
+        // Verificar se é contato efetivo
+        function ehContatoEfetivo(status) {
+            if (!status) return false;
+            const st = status.toLowerCase();
+            // Status oficiais efetivos: Contato realizado + Não interessado + Agendado
+            return st === 'contato realizado' || st === 'não interessado' || st === 'agendado';
+        }
+
+        // ===== TOOLTIP =====
+        function mostrarTooltip(event) {
+            event.stopPropagation();
+            const icon = event.currentTarget;
+            const tooltip = icon.querySelector('.tooltip');
+            if (tooltip) {
+                document.querySelectorAll('.tooltip.show').forEach(t => {
+                    if (t !== tooltip) t.classList.remove('show');
+                });
+                tooltip.classList.toggle('show');
+                
+                // Auto-hide no mobile (< 768px)
+                if (window.innerWidth <= 768) {
+                    const timeoutId = setTimeout(() => {
+                        tooltip.classList.remove('show');
+                    }, 3000);
+                    
+                    // Limpar timeout se clicar em outro botão
+                    tooltip.dataset.timeoutId = timeoutId;
+                    
+                    // Limpar timeout anterior se existir
+                    const oldTimeoutId = tooltip.dataset.oldTimeoutId;
+                    if (oldTimeoutId) {
+                        clearTimeout(parseInt(oldTimeoutId));
+                    }
+                    tooltip.dataset.oldTimeoutId = timeoutId;
+                }
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.info-icon')) {
+                document.querySelectorAll('.tooltip.show').forEach(t => t.classList.remove('show'));
+            }
+        });
+
+        // ===== DROPDOWN =====
+        function toggleDropdown() {
+            const content = document.getElementById('dropdownContent');
+            const btn = document.getElementById('periodDropdown');
+            content.classList.toggle('show');
+            btn.setAttribute('aria-expanded', content.classList.contains('show'));
+        }
+
+        function selectPeriod(event, period, label) {
+            event.stopPropagation();
+            const elemento = event.currentTarget;
+            
+            document.getElementById('selectedPeriod').textContent = label;
+            document.getElementById('dropdownContent').classList.remove('show');
+            document.getElementById('periodDropdown').setAttribute('aria-expanded', 'false');
+
+            // Marcar como ativo
+            document.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('active'));
+            elemento.classList.add('active');
+
+            if (period === 'personalizado') {
+                document.getElementById('customDates').classList.add('show');
+            } else {
+                document.getElementById('customDates').classList.remove('show');
+                filtrarDados(period);
+                periodoAtual = period;
+            }
+        }
+
+        function aplicarPersonalizado() {
+            const inicioVal = document.getElementById('dataInicio').value;
+            const fimVal = document.getElementById('dataFim').value;
+            
+            if (!inicioVal || !fimVal) {
+                alert('Selecione ambas as datas');
+                return;
+            }
+
+            // Usar parseData para garantir parsing local consistente
+            const inicio = parseData(inicioVal);
+            const fim = parseData(fimVal);
+
+            if (!inicio || !fim) {
+                alert('Datas inválidas');
+                return;
+            }
+
+            if (inicio > fim) {
+                alert('Data inicial não pode ser após data final');
+                return;
+            }
+
+            // Definir fim para 23:59:59 do dia (hora local)
+            fim.setHours(23, 59, 59);
+            
+            dadosAtuais = dadosExemplo.filter(d => {
+                const data = parseData(d.dataContato);
+                return data && data >= inicio && data <= fim;
+            });
+
+            paginacaoEstado = { contatos: false, tipo: false, bairro: false, representante: false, agendamentos: false };
+            atualizar();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const content = document.getElementById('dropdownContent');
+                if (content.classList.contains('show')) {
+                    content.classList.remove('show');
+                    document.getElementById('periodDropdown').setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+
+        window.onclick = function(e) {
+            if (!e.target.matches('.dropdown-btn') && !e.target.closest('.dropdown-option')) {
+                document.getElementById('dropdownContent').classList.remove('show');
+            }
+        };
+
+        // ===== FILTROS DE PERÍODO =====
+        function filtrarDados(periodo) {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            if (periodo === 'hoje') {
+                // Somente hoje
+                dadosAtuais = dadosExemplo.filter(d => {
+                    const data = parseData(d.dataContato);
+                    return data && new Date(data).toDateString() === hoje.toDateString();
+                });
+            } 
+            else if (periodo === 'ontem') {
+                // Somente ontem
+                const ontem = new Date(hoje);
+                ontem.setDate(ontem.getDate() - 1);
+                dadosAtuais = dadosExemplo.filter(d => {
+                    const data = parseData(d.dataContato);
+                    return data && new Date(data).toDateString() === ontem.toDateString();
+                });
+            } 
+            else if (periodo === 'essasemana') {
+                // Segunda-feira desta semana até hoje
+                const diaSemana = hoje.getDay();
+                // 0=domingo, 1=segunda, 2=terça...
+                // Se é domingo (0), segunda é amanhã. Senão, segunda é (diaSemana-1) dias atrás
+                const diasAteSegunda = diaSemana === 0 ? 6 : diaSemana - 1;
+                const segundaFeira = new Date(hoje);
+                segundaFeira.setDate(segundaFeira.getDate() - diasAteSegunda);
+                
+                dadosAtuais = dadosExemplo.filter(d => {
+                    const data = parseData(d.dataContato);
+                    return data && new Date(data) >= segundaFeira && new Date(data) <= hoje;
+                });
+            }
+            else if (periodo === 'semanapassada') {
+                // Segunda-feira semana passada até domingo semana passada
+                const diaSemana = hoje.getDay();
+                const diasAteSegunda = diaSemana === 0 ? 6 : diaSemana - 1;
+                
+                const segundaFeira = new Date(hoje);
+                segundaFeira.setDate(segundaFeira.getDate() - diasAteSegunda - 7);
+                
+                const domingo = new Date(segundaFeira);
+                domingo.setDate(domingo.getDate() + 6);
+                
+                dadosAtuais = dadosExemplo.filter(d => {
+                    const data = parseData(d.dataContato);
+                    return data && new Date(data) >= segundaFeira && new Date(data) <= domingo;
+                });
+            }
+            else if (periodo === '7dias') {
+                // Hoje + 6 dias anteriores = 7 dias
+                const ini = new Date(hoje);
+                ini.setDate(ini.getDate() - 6);
+                dadosAtuais = dadosExemplo.filter(d => {
+                    const data = parseData(d.dataContato);
+                    return data && new Date(data) >= ini && new Date(data) <= hoje;
+                });
+            } 
+            else if (periodo === '15dias') {
+                // Hoje + 14 dias anteriores = 15 dias
+                const ini = new Date(hoje);
+                ini.setDate(ini.getDate() - 14);
+                dadosAtuais = dadosExemplo.filter(d => {
+                    const data = parseData(d.dataContato);
+                    return data && new Date(data) >= ini && new Date(data) <= hoje;
+                });
+            } 
+            else if (periodo === '30dias') {
+                // Hoje + 29 dias anteriores = 30 dias
+                const ini = new Date(hoje);
+                ini.setDate(ini.getDate() - 29);
+                dadosAtuais = dadosExemplo.filter(d => {
+                    const data = parseData(d.dataContato);
+                    return data && new Date(data) >= ini && new Date(data) <= hoje;
+                });
+            } 
+            else if (periodo === 'mes') {
+                // Este mês: 1º do mês até hoje
+                const ini = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+                dadosAtuais = dadosExemplo.filter(d => {
+                    const data = parseData(d.dataContato);
+                    return data && new Date(data) >= ini && new Date(data) <= hoje;
+                });
+            } 
+            else if (periodo === 'mespassado') {
+                // Mês passado: 1º até último dia
+                const ini = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+                const fim = new Date(hoje.getFullYear(), hoje.getMonth(), 0);
+                dadosAtuais = dadosExemplo.filter(d => {
+                    const data = parseData(d.dataContato);
+                    return data && new Date(data) >= ini && new Date(data) <= fim;
+                });
+            }
+            else if (periodo === 'tudo') {
+                // Todos os dados sem filtro de período
+                dadosAtuais = [...dadosExemplo];
+            }
+            else {
+                // Default: todos os dados
+                dadosAtuais = [...dadosExemplo];
+            }
+
+            paginacaoEstado = { contatos: false, tipo: false, bairro: false, representante: false, agendamentos: false };
+            atualizar();
+        }
+
+        // ===== ATUALIZAÇÃO DE HORA =====
+        function atualizarHora() {
+            const agora = new Date();
+            const timeStr = agora.toLocaleString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            document.getElementById('currentTime').textContent = timeStr;
+        }
+
+
+        // ===== ATUALIZAÇÃO PRINCIPAL =====
+        function atualizar() {
+            // ✅ NOVO: Se metricas não foi fornecido, usar valores prontos
+            // Se dados estão vazios, mostrar zeros
+            if (dadosAtuais.length === 0) {
+                document.getElementById('totalContatos').textContent = metricas.leadsNaBase || '0';
+                document.getElementById('leadsTrabalhados').textContent = metricas.leadsTrabalhados || '0';
+                document.getElementById('taxaEfetiva').textContent = metricas.efetivoPct || 0 + '%';
+                document.getElementById('taxaAgendamento').textContent = metricas.taxaAgendamento || 0 + '%';
+                document.getElementById('tempoMedio').textContent = metricas.tempoMedio || 0 + 'm';
+                document.getElementById('agendados').textContent = metricas.agendados || '0';
+                atualizarTabelas();
+                return;
+            }
+
+            // ✅ MÉTRICAS PRONTAS (vindas de Métricas!B2:B7)
+            // Não recalculamos, apenas usamos os valores já preparados
+            const leadsNaBase = metricas.leadsNaBase;
+            const leadsTrabalhados = metricas.leadsTrabalhados;
+            const efetivoPct = metricas.efetivoPct;
+            const agendados = metricas.agendados;
+            const taxaAgend = metricas.taxaAgendamento;
+            const tempoMed = metricas.tempoMedio;
+
+            // Atualizar display (sem recálculos!)
+            document.getElementById('totalContatos').textContent = leadsNaBase;
+            document.getElementById('totalContatosSub').textContent = leadsNaBase + ' base';
+            document.getElementById('leadsTrabalhados').textContent = leadsTrabalhados;
+            document.getElementById('leadsTrabalhadosSub').textContent = leadsTrabalhados + ' com status';
+            document.getElementById('taxaEfetiva').textContent = Math.round(efetivoPct) + '%';
+            document.getElementById('taxaEfetivaSub').textContent = (Math.round((leadsTrabalhados * efetivoPct) / 100)) + ' efetivos';
+            document.getElementById('taxaAgendamento').textContent = Math.round(taxaAgend) + '%';
+            document.getElementById('taxaAgendamentoSub').textContent = agendados + ' agendados';
+            document.getElementById('tempoMedio').textContent = tempoMed + 'm';
+            document.getElementById('agendados').textContent = agendados;
+
+            atualizarTabelas();
+        }
+
+
+        // ===== RENDERIZAÇÃO DE TABELAS =====
+        function renderizarTabela(dados, bodyId, paginationId, tipo) {
+            const body = document.getElementById(bodyId);
+            const pagination = document.getElementById(paginationId);
+            
+            // Determinar colspan baseado no tipo
+            let colspan = 4;
+            if (tipo === 'contatos') colspan = 8;
+            if (tipo === 'representante') colspan = 2;
+            if (tipo === 'agendamentos') colspan = 7;
+            
+            if (dados.length === 0) {
+                body.innerHTML = `<tr><td colspan="${colspan}" class="table-empty">Nenhum dado encontrado</td></tr>`;
+                pagination.innerHTML = '';
+                return;
+            }
+
+            const mostrarTodos = paginacaoEstado[tipo];
+            const linhasExibidas = mostrarTodos ? dados.length : Math.min(paginacaoConfig.maxLinhasExibidas, dados.length);
+            const linhasArray = dados.slice(0, linhasExibidas);
+
+            body.innerHTML = '';
+
+            if (tipo === 'contatos') {
+                linhasArray.forEach(d => {
+                    const badgeClass = getBadgeClass(d.status);
+                    const tr = document.createElement('tr');
+                    const dataFormatada = formatarData(d.dataContato);
+                    const hora = d.horaContato || '-';
+                    tr.innerHTML = `<td>${d.nome || '-'}</td><td>${d.tipo || '-'}</td><td>${d.cidade || '-'}</td><td>${d.bairro || '-'}</td><td>${dataFormatada}</td><td>${hora}</td><td><span class="badge ${badgeClass}">${d.status || '-'}</span></td><td>${d.representante || '-'}</td>`;
+                    body.appendChild(tr);
+                });
+            } else if (tipo === 'tipo') {
+                linhasArray.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${item.tipo}</td><td>${item.total}</td><td>${item.agendados}</td><td>${item.taxa}%</td>`;
+                    body.appendChild(tr);
+                });
+            } else if (tipo === 'bairro') {
+                linhasArray.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${item.bairro}</td><td>${item.total}</td><td>${item.agendados}</td><td>${item.taxa}%</td>`;
+                    body.appendChild(tr);
+                });
+            } else if (tipo === 'representante') {
+                linhasArray.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${item.representante}</td><td>${item.agendados}</td>`;
+                    body.appendChild(tr);
+                });
+            } else if (tipo === 'agendamentos') {
+                linhasArray.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const dataFormatada = formatarData(item.dataContato);
+                    const hora = item.horaContato || '-';
+                    tr.innerHTML = `<td>${item.nome || '-'}</td><td>${item.tipo || '-'}</td><td>${item.cidade || '-'}</td><td>${item.bairro || '-'}</td><td>${dataFormatada}</td><td>${hora}</td><td>${item.representante || '-'}</td>`;
+                    body.appendChild(tr);
+                });
+            }
+
+            if (dados.length > paginacaoConfig.maxLinhasExibidas) {
+                const btnTexto = mostrarTodos ? 'Ver Menos' : `Ver Mais (+${dados.length - paginacaoConfig.maxLinhasExibidas})`;
+                const btn = document.createElement('button');
+                btn.className = 'view-more-btn';
+                btn.textContent = btnTexto;
+                btn.onclick = () => togglePaginacao(tipo);
+                pagination.innerHTML = '';
+                pagination.appendChild(btn);
+            } else {
+                pagination.innerHTML = '';
+            }
+        }
+
+        function togglePaginacao(tipo) {
+            paginacaoEstado[tipo] = !paginacaoEstado[tipo];
+            atualizarTabelas();
+        }
+
+        function atualizarTabelas() {
+            // Tabela 1: Contatos (ordenar por data DESC - mais recentes primeiro)
+            const contatos = [...dadosAtuais].sort((a, b) => {
+                const dataA = parseData(a.dataContato) || new Date(0);
+                const dataB = parseData(b.dataContato) || new Date(0);
+                return dataB - dataA;
+            });
+            renderizarTabela(contatos, 'contatosBody', 'contatosPagination', 'contatos');
+
+            // Tabela 2: Performance por Tipo (ordenar por total DESC)
+            const tipos = {};
+            dadosAtuais.forEach(d => {
+                const tipo = d.tipo || 'Sem tipo';
+                if (!tipos[tipo]) tipos[tipo] = { tipo, total: 0, agendados: 0, efetivos: 0 };
+                tipos[tipo].total++;
+                if (d.status === 'Agendado') tipos[tipo].agendados++;
+                if (ehContatoEfetivo(d.status)) tipos[tipo].efetivos++;
+            });
+
+            const tipoDados = Object.values(tipos)
+                .map(item => ({
+                    tipo: item.tipo,
+                    total: item.total,
+                    agendados: item.agendados,
+                    taxa: item.efetivos > 0 ? Math.round((item.efetivos / item.total) * 100) : 0
+                }))
+                .sort((a, b) => b.total - a.total);
+            renderizarTabela(tipoDados, 'tipoBody', 'tipoPagination', 'tipo');
+
+            // Tabela 3: Performance por Bairro (ordenar por total DESC)
+            const bairros = {};
+            dadosAtuais.forEach(d => {
+                const bairro = d.bairro || 'Sem bairro';
+                if (!bairros[bairro]) bairros[bairro] = { bairro, total: 0, agendados: 0, efetivos: 0 };
+                bairros[bairro].total++;
+                if (d.status === 'Agendado') bairros[bairro].agendados++;
+                if (ehContatoEfetivo(d.status)) bairros[bairro].efetivos++;
+            });
+
+            const bairroDados = Object.values(bairros)
+                .map(item => ({
+                    bairro: item.bairro,
+                    total: item.total,
+                    agendados: item.agendados,
+                    taxa: item.efetivos > 0 ? Math.round((item.efetivos / item.total) * 100) : 0
+                }))
+                .sort((a, b) => b.total - a.total);
+            renderizarTabela(bairroDados, 'bairroBody', 'bairroPagination', 'bairro');
+
+            // Tabela 4: Agendamentos por Representante (ordenar por agendados DESC)
+            const representantes = {};
+            dadosAtuais.forEach(d => {
+                const rep = d.representante || 'Sem representante';
+                if (!representantes[rep]) representantes[rep] = { representante: rep, agendados: 0, total: 0 };
+                representantes[rep].total++;
+                if (d.status === 'Agendado') representantes[rep].agendados++;
+            });
+
+            const repDados = Object.values(representantes)
+                .map(item => ({
+                    representante: item.representante,
+                    agendados: item.agendados,
+                    total: item.total,
+                    taxa: item.total > 0 ? Math.round((item.agendados / item.total) * 100) : 0
+                }))
+                .sort((a, b) => b.agendados - a.agendados);
+            renderizarTabela(repDados, 'representanteBody', 'repPagination', 'representante');
+
+            // Tabela 5: Agendamentos (filtrar apenas status "Agendado", ordenar por data DESC)
+            const agendamentos = dadosAtuais
+                .filter(d => d.status === 'Agendado')
+                .sort((a, b) => {
+                    const dataA = parseData(a.dataContato) || new Date(0);
+                    const dataB = parseData(b.dataContato) || new Date(0);
+                    return dataB - dataA;
+                });
+            renderizarTabela(agendamentos, 'agendamentosBody', 'agendamentosPagination', 'agendamentos');
+        }
+
+        // ===== INICIALIZAÇÃO =====
+        atualizarHora();
+        setInterval(atualizarHora, 1000);
+        atualizar();
+    </script>
+</body>
+</html>
